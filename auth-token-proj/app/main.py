@@ -1,6 +1,7 @@
 from fastapi import FastAPI
 from contextlib import asynccontextmanager
 from app.db.config import create_tables
+from app.account.models import User, RefreshToken
 from app.account.routers import router as account_router
 
 
