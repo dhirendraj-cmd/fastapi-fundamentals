@@ -66,6 +66,12 @@ def verify_refresh_token(session: Session, token: str):
     return None
 
 
+def decode_token(token: str):
+    try:
+        return jwt.decode(token, SECRET_KEY, algorithms=ALGORITHM)
+    except JWTError:
+        return None
+
 
 
 

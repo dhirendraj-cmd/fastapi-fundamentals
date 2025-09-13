@@ -1,14 +1,21 @@
 from typing import Annotated
-from fastapi import APIRouter, Depends, HTTPException, Request
+from fastapi import APIRouter, Depends, HTTPException, Request, Query
 from app.db.config import SessionDepends
 from app.account.services import create_user, authenticate_user
-from app.account.models import UserCreate, UserOut
-from fastapi.security import OAuth2PasswordRequestForm, OAuth2PasswordBearer
+from app.account.models import UserCreate, UserOut, User
+from fastapi.security import OAuth2PasswordRequestForm
 from app.account.helper import create_tokens, verify_refresh_token
 from fastapi.responses import JSONResponse
+from app.account.dependencies import get_current_user, get_all_users
+from sqlmodel import select
 
 router = APIRouter(prefix="/account", tags=["Account"])
 
+# session: SessionDepends, offset: int=0, limit: Annotated[int, Query(le=100)]=100,
+
+@router.get("/users", response_model=UserOut)
+def show_all_users(all_users = Depends(get_all_users)):
+    return JSONResponse(content=all_users)
 
 @router.post("/register", response_model=UserOut)
 def register(session: SessionDepends, user: UserCreate):
@@ -37,6 +44,15 @@ def refresh_token(session: SessionDepends, request: Request):
     if not user:
         raise HTTPException(status_code=401, detail="Invalid or expired token")
     return create_tokens(session, user)
+
+
+@router.get("/me", response_model=UserOut)
+def loggedin_user(user = Depends(get_current_user)):
+    return user
+
+
+
+
 
 
 
